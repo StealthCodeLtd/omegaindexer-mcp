@@ -1,5 +1,11 @@
 # @stealth-code/omegaindexer-mcp
 
+## 1.0.2
+
+### Patch Changes
+
+- 70c9cdf: Point the headless install pointer at the canonical `/install/headless` URL and tighten the install prompt wording.
+
 ## 1.0.1
 
 ### Patch Changes
