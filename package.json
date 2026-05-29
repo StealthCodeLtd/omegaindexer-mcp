@@ -1,0 +1,57 @@
+{
+  "name": "@stealth-code/omegaindexer-mcp",
+  "version": "1.0.0",
+  "description": "Installer/configurator for the hosted Omegaindexer MCP server (omegaindexer.com). Writes per-host MCP config for HTTP-native MCP hosts.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "omega",
+    "omegaindexer",
+    "oauth",
+    "claude",
+    "cursor",
+    "codex",
+    "windsurf"
+  ],
+  "author": "StealthCode Ltd",
+  "license": "Apache-2.0",
+  "homepage": "https://www.omegaindexer.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StealthCodeLtd/omegaindexer-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/StealthCodeLtd/omegaindexer-mcp/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20.12.0"
+  },
+  "bin": {
+    "omegaindexer": "dist/index.js"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "prepare": "npm run build",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "npm run build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@types/node": "^20.19.41",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}
