@@ -1,6 +1,6 @@
 {
   "name": "@stealth-code/omegaindexer-mcp",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Installer/configurator for the hosted Omegaindexer MCP server (omegaindexer.com). Writes per-host MCP config for HTTP-native MCP hosts.",
   "keywords": [
     "mcp",
