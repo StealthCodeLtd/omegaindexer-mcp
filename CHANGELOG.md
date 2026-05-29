@@ -1,5 +1,11 @@
 # @stealth-code/omegaindexer-mcp
 
+## 1.0.4
+
+### Patch Changes
+
+- 880399f: Clarify the README's OpenCode section: tell agents to add a _remote_ MCP server with the hosted URL, and warn against registering a `type: "local"` npx entry (which fails — this package is an installer, not a stdio server).
+
 ## 1.0.3
 
 ### Patch Changes
