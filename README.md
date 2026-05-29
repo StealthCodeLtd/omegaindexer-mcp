@@ -23,6 +23,24 @@ The first Omegaindexer tool call opens your browser to sign in. Verify with: _"R
 
 > **Headless host (Hermes, Discord, Slack, Telegram)?** Don't run the CLI — it configures desktop clients only. Fetch `https://mcp.omegaindexer.com/install/headless` and follow it instead.
 
+## OpenCode
+
+The installer doesn't configure OpenCode — add it manually to `~/.config/opencode/opencode.json` (or your project `opencode.json`):
+
+```jsonc
+{
+  "mcp": {
+    "omegaindexer": {
+      "type": "remote",
+      "url": "https://mcp.omegaindexer.com/mcp",
+      "enabled": true
+    }
+  }
+}
+```
+
+Restart OpenCode. It handles OAuth automatically — the first Omegaindexer tool call opens your browser to sign in (no token or header needed).
+
 ## Uninstall
 
 Paste this to your AI assistant:
@@ -38,6 +56,7 @@ Or remove it manually:
 | Codex CLI      | remove `[mcp_servers.omegaindexer]` from `~/.codex/config.toml`  |
 | Cursor         | remove `omegaindexer` from `~/.cursor/mcp.json`                  |
 | Windsurf       | remove `omegaindexer` from `~/.codeium/windsurf/mcp_config.json` |
+| OpenCode       | remove `omegaindexer` from `~/.config/opencode/opencode.json`   |
 
 Revoke access any time at `omegaindexer.com → Settings → Connected MCP Clients`.
 

@@ -65,6 +65,22 @@ async function main(): Promise<void> {
   const [cmd, ...rest] = process.argv.slice(2)
   switch (cmd) {
     case undefined:
+      // A non-TTY stdin means a host most likely spawned us as a stdio MCP
+      // server (`type: "local"`, `command: ["npx", … ]`). stdout is then the
+      // JSON-RPC channel, so printing help there silently corrupts it and the
+      // host just reports "failed to connect". Emit actionable guidance on
+      // stderr (where hosts surface MCP server logs) and fail. This is an
+      // installer, not a server — the server is hosted.
+      if (!process.stdin.isTTY) {
+        process.stderr.write(
+          "omegaindexer is an installer CLI, not a stdio MCP server. The Omegaindexer MCP " +
+            "server is hosted; configure a REMOTE MCP entry instead:\n" +
+            '  { "type": "remote", "url": "https://mcp.omegaindexer.com/mcp" }\n' +
+            "Or run `npx -y @stealth-code/omegaindexer-mcp install` in a terminal to auto-configure desktop hosts.\n",
+        )
+        process.exitCode = 1
+        return
+      }
       printHelp()
       return
     case "install":
