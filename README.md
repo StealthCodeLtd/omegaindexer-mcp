@@ -3,53 +3,69 @@
 [![npm](https://img.shields.io/npm/v/@stealth-code/omegaindexer-mcp)](https://www.npmjs.com/package/@stealth-code/omegaindexer-mcp)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
 
-Install the hosted [Omegaindexer](https://www.omegaindexer.com) MCP server in your AI client (Claude Code, Cursor, Codex CLI, Windsurf, Claude Desktop).
+Connect the hosted [Omegaindexer](https://www.omegaindexer.com) MCP server to your AI client.
 
-You need an [Omegaindexer account](https://www.omegaindexer.com) and a browser for the one-time sign-in (any device, even a phone).
+You need an [Omegaindexer account](https://www.omegaindexer.com) and a browser for the one-time sign-in (any device — even a phone).
 
-## Install
+**One thing to know:** the server is **hosted** (`https://mcp.omegaindexer.com/mcp`) — there's nothing to run locally. Every client just registers that URL as a **remote** MCP server. Sign-in is automatic browser OAuth on first use; you never paste a token. (Exception: chat-only headless hosts that can't do OAuth — see [Headless hosts](#headless-hosts).)
 
-Paste this to your AI assistant:
+> **Shortcut for desktop clients:** `npx -y @stealth-code/omegaindexer-mcp install` auto-detects and configures Claude Code, Claude Desktop, Codex CLI, Cursor, and Windsurf in one go. The per-client prompts below do the same thing explicitly (and cover OpenCode + headless hosts, which the installer doesn't).
 
-> Install the Omegaindexer MCP server by running `npx -y @stealth-code/omegaindexer-mcp install`. On my first Omegaindexer tool call, open my browser so I can sign in to omegaindexer.com.
+## Set up your client
 
-Or run it yourself, then restart your client:
+Pick your client and paste the prompt to its AI assistant. Then restart the client — on the first Omegaindexer tool call your browser opens to sign in. Verify with: _"Run `omegaindexer_whoami`."_
 
-```bash
-npx -y @stealth-code/omegaindexer-mcp install
-```
+### Claude Code
 
-The first Omegaindexer tool call opens your browser to sign in. Verify with: _"Run `omegaindexer_whoami`."_
+> Add the hosted Omegaindexer MCP server to Claude Code by running `claude mcp add --transport http omegaindexer https://mcp.omegaindexer.com/mcp`. It's a remote HTTP server — don't register it as a local/stdio command.
 
-> **Headless host (Hermes, Discord, Slack, Telegram)?** Don't run the CLI — it configures desktop clients only. Fetch `https://mcp.omegaindexer.com/install/headless` and follow it instead.
+### Cursor
 
-## OpenCode
+> Add the hosted Omegaindexer MCP server to Cursor: in `~/.cursor/mcp.json`, merge into `mcpServers` the entry `"omegaindexer": { "url": "https://mcp.omegaindexer.com/mcp" }`. It's a remote HTTP server — no `command`/stdio.
 
-OpenCode isn't configured by the `npx … install` CLI. Add a **remote** server manually to `~/.config/opencode/opencode.json` (or your project `opencode.json`):
+### Codex CLI
 
-```jsonc
-{
-  "mcp": {
-    "omegaindexer": {
-      "type": "remote",
-      "url": "https://mcp.omegaindexer.com/mcp",
-      "enabled": true
-    }
-  }
-}
-```
+> Add the hosted Omegaindexer MCP server to Codex: append this to `~/.codex/config.toml` — `[mcp_servers.omegaindexer]` on one line, then `url = "https://mcp.omegaindexer.com/mcp"`. It's a remote HTTP server — no `command`.
 
-Restart OpenCode. It handles OAuth automatically — the first Omegaindexer tool call opens your browser to sign in (no token or header needed).
+### Windsurf
 
-> **Asking an OpenCode agent to set this up? Tell it: _"Add a **remote** MCP server named `omegaindexer` with url `https://mcp.omegaindexer.com/mcp`."_** Do **not** ask it to "install the npm package" — OpenCode's built-in skill will register a `type: "local"` entry that runs `npx … omegaindexer-mcp` as a stdio server. That's wrong: this package is an installer, not a stdio server, and the omegaindexer server is hosted (remote). A `local` entry will fail to connect.
+> Add the hosted Omegaindexer MCP server to Windsurf: in `~/.codeium/windsurf/mcp_config.json`, merge into `mcpServers` the entry `"omegaindexer": { "url": "https://mcp.omegaindexer.com/mcp" }`. It's a remote HTTP server — no `command`/stdio.
+
+### Claude Desktop
+
+> Add the Omegaindexer MCP server to Claude Desktop via Settings → Connectors → Add custom connector, with URL `https://mcp.omegaindexer.com/mcp`. (Editing `claude_desktop_config.json` does **not** register remote servers — use the Connectors UI.)
+
+### OpenCode
+
+> Add a **remote** MCP server named `omegaindexer` with url `https://mcp.omegaindexer.com/mcp` to my OpenCode config (`~/.config/opencode/opencode.json`, under `mcp`, with `"type": "remote"` and `"enabled": true`). Do **not** install the npm package and do **not** use `type: "local"`/npx — it's a hosted server, so a local/stdio entry will fail to connect.
+
+## Headless hosts
+
+Chat-only gateways (**Hermes**, Discord/Slack/Telegram bots) **can't do browser OAuth**. They connect to `https://mcp.omegaindexer.com/mcp-headless` and sign in via a device-flow that mints a long-lived token, stored as an `Authorization` header. Don't run the `npx … install` CLI on these — it only configures desktop clients.
+
+### Hermes
+
+> Install Omegaindexer by fetching `https://mcp.omegaindexer.com/install/headless` and following it verbatim. Do not run the `@stealth-code/omegaindexer-mcp` npm CLI, and do not use `hermes mcp login` / `--auth oauth` — this host signs in through the device-flow runbook at that URL.
+
+### OpenClaw
+
+OpenClaw can't do OAuth for remote MCP servers (`openclaw mcp` has no `auth`/`login` subcommand — only a static `Authorization` header). So it signs in with a token via the headless device-flow. In a terminal:
+
+1. Register the **headless** endpoint (note `/mcp-headless`, not `/mcp`):
+   ```bash
+   openclaw mcp set omegaindexer '{"url":"https://mcp.omegaindexer.com/mcp-headless","transport":"streamable-http"}'
+   ```
+2. Reload OpenClaw so it connects and exposes the tools (restart your OpenClaw gateway/session).
+3. Ask an OpenClaw agent to call the `omegaindexer_login` tool. It returns a URL + 8-char code — open the URL, enter the code, approve in your browser.
+4. It returns a token. Store it by re-running `set` with the full entry plus the header:
+   ```bash
+   openclaw mcp set omegaindexer '{"url":"https://mcp.omegaindexer.com/mcp-headless","transport":"streamable-http","headers":{"Authorization":"Bearer <TOKEN>"}}'
+   ```
+5. Reload again, then verify by asking an agent to run `omegaindexer_whoami`.
 
 ## Uninstall
 
-Paste this to your AI assistant:
-
-> Uninstall the Omegaindexer MCP server from this client.
-
-Or remove it manually:
+Paste to your AI assistant: _"Uninstall the Omegaindexer MCP server from this client."_ Or remove it manually:
 
 | Client         | Removal                                                          |
 | -------------- | ---------------------------------------------------------------- |
@@ -59,6 +75,7 @@ Or remove it manually:
 | Cursor         | remove `omegaindexer` from `~/.cursor/mcp.json`                  |
 | Windsurf       | remove `omegaindexer` from `~/.codeium/windsurf/mcp_config.json` |
 | OpenCode       | remove `omegaindexer` from `~/.config/opencode/opencode.json`   |
+| Hermes         | remove the `omegaindexer` entry from `~/.hermes/config.yaml`     |
 
 Revoke access any time at `omegaindexer.com → Settings → Connected MCP Clients`.
 
