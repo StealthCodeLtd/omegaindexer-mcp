@@ -1,5 +1,11 @@
 # @stealth-code/omegaindexer-mcp
 
+## 1.0.3
+
+### Patch Changes
+
+- 9ef3e72: Add an OpenCode remote-config section to the README, and fail loudly with stderr guidance when the installer is mistakenly launched as a stdio MCP server (instead of silently corrupting the JSON-RPC channel).
+
 ## 1.0.2
 
 ### Patch Changes
