@@ -25,7 +25,7 @@ The first Omegaindexer tool call opens your browser to sign in. Verify with: _"R
 
 ## OpenCode
 
-The installer doesn't configure OpenCode — add it manually to `~/.config/opencode/opencode.json` (or your project `opencode.json`):
+OpenCode isn't configured by the `npx … install` CLI. Add a **remote** server manually to `~/.config/opencode/opencode.json` (or your project `opencode.json`):
 
 ```jsonc
 {
@@ -40,6 +40,8 @@ The installer doesn't configure OpenCode — add it manually to `~/.config/openc
 ```
 
 Restart OpenCode. It handles OAuth automatically — the first Omegaindexer tool call opens your browser to sign in (no token or header needed).
+
+> **Asking an OpenCode agent to set this up? Tell it: _"Add a **remote** MCP server named `omegaindexer` with url `https://mcp.omegaindexer.com/mcp`."_** Do **not** ask it to "install the npm package" — OpenCode's built-in skill will register a `type: "local"` entry that runs `npx … omegaindexer-mcp` as a stdio server. That's wrong: this package is an installer, not a stdio server, and the omegaindexer server is hosted (remote). A `local` entry will fail to connect.
 
 ## Uninstall
 
