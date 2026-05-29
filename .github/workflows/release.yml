@@ -3,6 +3,11 @@ name: Release
 on:
   push:
     branches: [main]
+    # Skip pure docs pushes. Scoped to root *.md + docs/** so .changeset/*.md
+    # still triggers the workflow (paths-ignore has no negation to re-include it).
+    paths-ignore:
+      - "*.md"
+      - "docs/**"
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
