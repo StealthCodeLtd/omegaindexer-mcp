@@ -1,5 +1,11 @@
 # @stealth-code/omegaindexer-mcp
 
+## 1.0.1
+
+### Patch Changes
+
+- 4abcf5c: Simplify README to a user-facing, prompt-driven install/uninstall guide.
+
 ## 1.0.0
 
 Initial public release. CLI installer/configurator for the hosted Omegaindexer MCP
