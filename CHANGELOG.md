@@ -1,5 +1,11 @@
 # @stealth-code/omegaindexer-mcp
 
+## 1.1.0
+
+### Minor Changes
+
+- `install` in auto-detect mode now shows an interactive checkbox list of all supported hosts before writing anything — hosts detected on the machine start selected, undetected ones are listed unchecked (so they can be opted into without `--only`), space toggles a host, enter confirms, Ctrl+C aborts with no changes. Add `--yes`/`-y` to skip the prompt. Non-TTY runs (CI, piped) keep the previous no-prompt behavior, and explicit `--only`/`--all`/`--client` never prompt.
+
 ## 1.0.5
 
 ### Patch Changes

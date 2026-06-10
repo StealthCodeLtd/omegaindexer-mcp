@@ -9,7 +9,7 @@ You need an [Omegaindexer account](https://www.omegaindexer.com) and a browser f
 
 **One thing to know:** the server is **hosted** (`https://mcp.omegaindexer.com/mcp`) — there's nothing to run locally. Every client just registers that URL as a **remote** MCP server. Sign-in is automatic browser OAuth on first use; you never paste a token. (Exception: chat-only headless hosts that can't do OAuth — see [Headless hosts](#headless-hosts).)
 
-> **Shortcut for desktop clients:** `npx -y @stealth-code/omegaindexer-mcp install` auto-detects and configures Claude Code, Claude Desktop, Codex CLI, Cursor, and Windsurf in one go. The per-client prompts below do the same thing explicitly (and cover OpenCode + headless hosts, which the installer doesn't).
+> **Shortcut for desktop clients:** `npx -y @stealth-code/omegaindexer-mcp install` auto-detects Claude Code, Claude Desktop, Codex CLI, Cursor, and Windsurf, then asks which of them to configure (press Enter for all, or pass `--yes` to skip the prompt). The per-client prompts below do the same thing explicitly (and cover OpenCode + headless hosts, which the installer doesn't).
 
 ## Set up your client
 

@@ -3,6 +3,8 @@ import { delimiter as PATH_DELIM } from "node:path"
 import { homedir, platform } from "node:os"
 import { dirname, join, relative } from "node:path"
 
+import { isCancel, multiselect } from "@clack/prompts"
+
 // HTTP-native MCP hosts only. For each supported host we write a direct
 // `url`-style entry pointing at the hosted Omega MCP server.
 
@@ -68,6 +70,7 @@ interface ParsedArgs {
   exclude: string[]
   client: string | null
   all: boolean
+  yes: boolean
 }
 
 function splitList(value: string): string[] {
@@ -75,7 +78,7 @@ function splitList(value: string): string[] {
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
-  const out: ParsedArgs = { only: [], exclude: [], client: null, all: false }
+  const out: ParsedArgs = { only: [], exclude: [], client: null, all: false, yes: false }
   const requireValue = (flag: string, raw: string | undefined): string => {
     if (raw === undefined || raw.startsWith("--")) {
       throw new Error(`${flag} requires a value`)
@@ -96,6 +99,8 @@ function parseArgs(argv: string[]): ParsedArgs {
       out.exclude.push(...items)
     } else if (a === "--all") {
       out.all = true
+    } else if (a === "--yes" || a === "-y") {
+      out.yes = true
     } else {
       throw new Error(`Unknown install flag: ${a.replace(CTRL_RE, "?")}`)
     }
@@ -109,6 +114,9 @@ function parseArgs(argv: string[]): ParsedArgs {
   }
   if (out.exclude.length > 0 && modes.length > 0) {
     throw new Error(`--exclude only applies to auto-detect mode. Remove ${modes[0]} or --exclude.`)
+  }
+  if (out.yes && modes.length > 0) {
+    throw new Error(`--yes only applies to auto-detect mode (the prompt). Remove ${modes[0]} or --yes.`)
   }
   return out
 }
@@ -215,6 +223,29 @@ async function resolveHosts(args: ParsedArgs): Promise<{ hosts: ClientName[]; de
     if (await isHostDetected(c)) hosts.push(c)
   }
   return { hosts, detected: true }
+}
+
+// Interactive selection for auto-detect mode: checkbox list of every
+// supported host with the detected ones pre-selected (space toggles,
+// enter confirms). Undetected hosts are listed unchecked so they can be
+// opted into without --only. Ctrl+C / cancel returns an empty selection,
+// which the caller treats as "nothing selected, nothing written".
+async function promptHostSelection(detected: ClientName[]): Promise<ClientName[]> {
+  const detectedSet = new Set(detected)
+  const picked = await multiselect({
+    message: "Which hosts should be configured? (space to toggle, enter to confirm)",
+    options: CLIENT_NAMES.map((c) => {
+      const hints: string[] = []
+      if (!detectedSet.has(c)) hints.push("not detected")
+      // SPECS-less hosts get printed instructions instead of a config write.
+      if (SPECS[c] === undefined) hints.push("prints setup steps, writes no file")
+      return { value: c, label: c, hint: hints.join("; ") || undefined }
+    }),
+    initialValues: [...detected],
+    required: false,
+  })
+  if (isCancel(picked)) return []
+  return picked
 }
 
 function windsurfConfigPath(): string {
@@ -438,8 +469,21 @@ export async function runInstall(argv: string[], rawServerUrl: string): Promise<
     process.stdout.write(`omegaindexer: detected ${hosts.length} host(s): ${hosts.join(", ")}\n`)
   }
 
+  // Confirm before touching configs the user may not have meant to change.
+  // Only in auto-detect mode (explicit --only/--all/--client already states
+  // intent) and only on a TTY — CI and piped runs keep the no-prompt
+  // behavior, as does --yes.
+  let selected = hosts
+  if (detected && !args.yes && process.stdin.isTTY && process.stdout.isTTY) {
+    selected = await promptHostSelection(hosts)
+    if (selected.length === 0) {
+      process.stdout.write("omegaindexer: nothing selected, no changes made.\n")
+      return
+    }
+  }
+
   let failures = 0
-  for (const host of hosts) {
+  for (const host of selected) {
     try {
       await installToHost(host, serverUrl)
     } catch (e) {
@@ -449,7 +493,7 @@ export async function runInstall(argv: string[], rawServerUrl: string): Promise<
   }
 
   // Only nudge a restart if at least one host actually got configured.
-  if (failures < hosts.length) {
+  if (failures < selected.length) {
     process.stdout.write("Restart your MCP host. On first tool call, your browser will open for sign-in.\n")
   }
   if (failures > 0) process.exitCode = 1
